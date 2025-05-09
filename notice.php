@@ -1,30 +1,31 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
+header('Content-Type: application/json');
 
-$pdo = new PDO("pgsql:host=YOUR_HOST;port=5432;dbname=neondb;user=YOUR_USER;password=YOUR_PASS");
+// Neon PostgreSQL connection string
+$dsn = "pgsql:host=ep-autumn-glitter-a7pvixph-pooler.ap-southeast-2.aws.neon.tech;port=5432;dbname=neondb;sslmode=require";
+$user = "neondb_owner";
+$password = "npg_dI9wqKRNga8i";
 
-if ($_SERVER["REQUEST_METHOD"] === "GET") {
-  // Retrieve notice list
-  $stmt = $pdo->query("SELECT id, title, content, date FROM notices ORDER BY date DESC");
+try {
+  // Connect to the database
+  $pdo = new PDO($dsn, $user, $password, [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+  ]);
+
+  // Example query: fetch all notices
+  $stmt = $pdo->query("SELECT id, title, content, created_at FROM notices ORDER BY created_at DESC");
+
   $notices = $stmt->fetchAll(PDO::FETCH_ASSOC);
-  echo json_encode(["success" => true, "notices" => $notices]);
-} elseif ($_SERVER["REQUEST_METHOD"] === "POST") {
-  // Create new notice
-  $data = json_decode(file_get_contents("php://input"), true);
-  $title = $data["title"] ?? "";
-  $content = $data["content"] ?? "";
 
-  if (!$title) {
-    echo json_encode(["success" => false, "message" => "Title is required"]);
-    exit;
-  }
+  echo json_encode([
+    "success" => true,
+    "data" => $notices
+  ]);
 
-  $stmt = $pdo->prepare("INSERT INTO notices (title, content, date) VALUES (?, ?, CURRENT_DATE)");
-  $stmt->execute([$title, $content]);
-  echo json_encode(["success" => true, "message" => "Notice created"]);
-} else {
-  http_response_code(405);
-  echo json_encode(["success" => false, "message" => "Method not allowed"]);
+} catch (PDOException $e) {
+  echo json_encode([
+    "success" => false,
+    "error" => $e->getMessage()
+  ]);
 }
+?>
