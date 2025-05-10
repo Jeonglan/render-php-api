@@ -1,4 +1,5 @@
 <?php
+// ✅ CORS 설정
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if ($origin === 'https://strata-management-xi-five.vercel.app') {
   header("Access-Control-Allow-Origin: $origin");
@@ -19,7 +20,7 @@ if (!isset($data['email']) || !isset($data['password'])) {
 $email = $data['email'];
 $password = $data['password'];
 
-// ✅ DB 연결 정보 (Neon PostgreSQL)
+// ✅ DB 연결
 $host = 'ep-empty-snow-a7zntah4-pooler.ap-southeast-2.aws.neon.tech';
 $db   = 'neondb';
 $user = 'neondb_owner';
@@ -37,20 +38,19 @@ try {
   $stmt->execute([$email]);
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-  // ✅ 로그인 실패 처리
+  // ✅ 실패 시
   if (!$user || !password_verify($password, $user['password_hash'])) {
     echo json_encode(["success" => false, "message" => "Invalid credentials"]);
     exit;
   }
 
-  // ✅ 로그인 성공 시 쿠키 설정 (echo 전에 반드시!)
+  // ✅ 쿠키는 echo 전에!
   setcookie("strata_session", "active", [
     'httponly' => true,
     'secure' => true,
     'samesite' => 'Strict',
     'path' => '/',
   ]);
-
   setcookie("user_id", $user["id"], [
     'httponly' => true,
     'secure' => true,
@@ -58,7 +58,7 @@ try {
     'path' => '/',
   ]);
 
-  // ✅ 성공 응답
+  // ✅ JSON 응답
   echo json_encode([
     "success" => true,
     "user" => [
@@ -68,8 +68,6 @@ try {
       "role" => $user["role"]
     ]
   ]);
-
-echo json_encode([...]);
-
-// if the fail to login
-echo json_encode(["success" => false, "message" => "Invalid credentials"]);
+} catch (PDOException $e) {
+  echo json_encode(["success" => false, "message" => "DB error", "error" => $e->getMessage()]);
+}
