@@ -73,3 +73,5 @@ try {
   echo json_encode(["success" => false, "message" => "DB error", "error" => $e->getMessage()]);
 }
 ?>
+
+echo json_encode(["debug" => password_verify($password, $user['password_hash'])]); exit;
