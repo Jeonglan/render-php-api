@@ -18,11 +18,12 @@ $email = $data['email'];
 $password = $data['password'];
 
 // ✅ DB 연결
-$host = 'YOUR_NEON_HOST';
-$db   = 'YOUR_DB';
-$user = 'YOUR_USER';
-$pass = 'YOUR_PASS';
+$host = 'ep-empty-snow-a7zntah4-pooler.ap-southeast-2.aws.neon.tech';
+$db   = 'neondb';
+$user = 'neondb_owner';
+$pass = 'npg_opRN75kDBSGu';
 $port = '5432';
+
 $dsn = "pgsql:host=$host;port=$port;dbname=$db;user=$user;password=$pass";
 
 try {
