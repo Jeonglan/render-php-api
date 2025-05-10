@@ -69,10 +69,7 @@ try {
     ]
   ]);
 
-} catch (PDOException $e) {
-  echo json_encode(["success" => false, "message" => "DB error", "error" => $e->getMessage()]);
-}
-?>
+echo json_encode([...]);
 
-echo json_encode(["debug" => true, "email" => $email, "password" => $password]); 
-exit;
+// if the fail to login
+echo json_encode(["success" => false, "message" => "Invalid credentials"]);
