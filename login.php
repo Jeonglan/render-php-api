@@ -1,6 +1,6 @@
 <?php
-// ✅ CORS 설정
-header("Access-Control-Allow-Origin: *");
+// ✅ 정확한 Origin으로 CORS 설정
+header("Access-Control-Allow-Origin: https://strata-management-xi-five.vercel.app");  // 또는 http://localhost:3000
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
@@ -17,7 +17,7 @@ if (!isset($data['email']) || !isset($data['password'])) {
 $email = $data['email'];
 $password = $data['password'];
 
-// ✅ DB 연결
+// ✅ DB 연결 정보 (Neon PostgreSQL)
 $host = 'ep-empty-snow-a7zntah4-pooler.ap-southeast-2.aws.neon.tech';
 $db   = 'neondb';
 $user = 'neondb_owner';
@@ -35,10 +35,26 @@ try {
   $stmt->execute([$email]);
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+  // ✅ 로그인 실패 처리
   if (!$user || !password_verify($password, $user['password_hash'])) {
     echo json_encode(["success" => false, "message" => "Invalid credentials"]);
     exit;
   }
+
+  // ✅ 로그인 성공 시 쿠키 설정 (echo 전에 반드시!)
+  setcookie("strata_session", "active", [
+    'httponly' => true,
+    'secure' => true,
+    'samesite' => 'Strict',
+    'path' => '/',
+  ]);
+
+  setcookie("user_id", $user["id"], [
+    'httponly' => true,
+    'secure' => true,
+    'samesite' => 'Strict',
+    'path' => '/',
+  ]);
 
   // ✅ 성공 응답
   echo json_encode([
@@ -55,10 +71,3 @@ try {
   echo json_encode(["success" => false, "message" => "DB error", "error" => $e->getMessage()]);
 }
 ?>
-
-setcookie("strata_session", "active", [
-  'httponly' => true,
-  'secure' => true,
-  'samesite' => 'Strict',
-  'path' => '/',
-]);
