@@ -1,27 +1,27 @@
 <?php
-// ✅ CORS setting
-header("Access-Control-Allow-Origin: http://localhost:3002");
+// ✅ CORS 설정
+header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') exit(0);
 
-// JSON 요청 파싱
+// ✅ 요청 데이터 읽기
 $data = json_decode(file_get_contents("php://input"), true);
 
 if (!isset($data['email']) || !isset($data['password'])) {
-  echo json_encode(["success" => false, "message" => "Missing email or password"]);
+  echo json_encode(["success" => false, "message" => "Missing fields"]);
   exit;
 }
 
 $email = $data['email'];
 $password = $data['password'];
 
-// PostgreSQL information (Neon)
-$host = 'ep-autumn-glitter-a7pvixph-pooler.ap-southeast-2.aws.neon.tech';
-$db   = 'neondb';
-$user = 'neondb_owner';
-$pass = 'npg_dI9wqKRNga8i';
+// ✅ DB 연결
+$host = 'YOUR_NEON_HOST';
+$db   = 'YOUR_DB';
+$user = 'YOUR_USER';
+$pass = 'YOUR_PASS';
 $port = '5432';
 $dsn = "pgsql:host=$host;port=$port;dbname=$db;user=$user;password=$pass";
 
@@ -29,17 +29,17 @@ try {
   $pdo = new PDO($dsn);
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-  // user
+  // ✅ 사용자 조회
   $stmt = $pdo->prepare("SELECT id, name, email, password_hash, role FROM users WHERE email = ?");
   $stmt->execute([$email]);
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
   if (!$user || !password_verify($password, $user['password_hash'])) {
-    echo json_encode(["success" => false, "message" => "Invalid email or password"]);
+    echo json_encode(["success" => false, "message" => "Invalid credentials"]);
     exit;
   }
 
-  // success responce 
+  // ✅ 성공 응답
   echo json_encode([
     "success" => true,
     "user" => [
@@ -51,6 +51,6 @@ try {
   ]);
 
 } catch (PDOException $e) {
-  echo json_encode(["success" => false, "message" => "Database error", "error" => $e->getMessage()]);
-  exit;
+  echo json_encode(["success" => false, "message" => "DB error", "error" => $e->getMessage()]);
 }
+?>
