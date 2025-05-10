@@ -55,3 +55,10 @@ try {
   echo json_encode(["success" => false, "message" => "DB error", "error" => $e->getMessage()]);
 }
 ?>
+
+setcookie("strata_session", "active", [
+  'httponly' => true,
+  'secure' => true,
+  'samesite' => 'Strict',
+  'path' => '/',
+]);
