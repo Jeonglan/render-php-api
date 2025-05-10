@@ -1,6 +1,8 @@
 <?php
-// ✅ 정확한 Origin으로 CORS 설정
-header("Access-Control-Allow-Origin: https://strata-management-xi-five.vercel.app");  // 또는 http://localhost:3000
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if ($origin === 'https://strata-management-xi-five.vercel.app') {
+  header("Access-Control-Allow-Origin: $origin");
+}
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
