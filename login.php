@@ -1,10 +1,12 @@
 <?php
-// Allow CORS for local testing or Vercel
-header("Access-Control-Allow-Origin: *");
+// ✅ CORS setting
+header("Access-Control-Allow-Origin: http://localhost:3002");
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') exit(0);
 
-// Get JSON input from request
+// JSON 요청 파싱
 $data = json_decode(file_get_contents("php://input"), true);
 
 if (!isset($data['email']) || !isset($data['password'])) {
@@ -15,20 +17,19 @@ if (!isset($data['email']) || !isset($data['password'])) {
 $email = $data['email'];
 $password = $data['password'];
 
-// Connect to Neon PostgreSQL
-$host = 'your-neon-hostname';
+// PostgreSQL information (Neon)
+$host = 'ep-autumn-glitter-a7pvixph-pooler.ap-southeast-2.aws.neon.tech';
 $db   = 'neondb';
-$user = 'your-username';
-$pass = 'your-password';
+$user = 'neondb_owner';
+$pass = 'npg_dI9wqKRNga8i';
 $port = '5432';
-
 $dsn = "pgsql:host=$host;port=$port;dbname=$db;user=$user;password=$pass";
 
 try {
   $pdo = new PDO($dsn);
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-  // Check if user exists
+  // user
   $stmt = $pdo->prepare("SELECT id, name, email, password_hash, role FROM users WHERE email = ?");
   $stmt->execute([$email]);
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -38,7 +39,7 @@ try {
     exit;
   }
 
-  // Success
+  // success responce 
   echo json_encode([
     "success" => true,
     "user" => [
