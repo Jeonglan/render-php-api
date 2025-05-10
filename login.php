@@ -74,4 +74,9 @@ try {
 }
 ?>
 
-echo json_encode(["debug" => password_verify($password, $user['password_hash'])]); exit;
+eecho json_encode([
+  "debug_password_valid" => password_verify($password, $user['password_hash']),
+  "input_password" => $password,
+  "stored_hash" => $user['password_hash']
+]); 
+exit;
