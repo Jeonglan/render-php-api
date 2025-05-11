@@ -1,4 +1,11 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+// CORS 헤더 설정
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if ($origin === 'https://strata-management-xi-five.vercel.app') {
+    header("Access-Control-Allow-Origin: $origin");
+}
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Content-Type: application/json");
-echo json_encode(["status" => "working"]);
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') exit(0);
